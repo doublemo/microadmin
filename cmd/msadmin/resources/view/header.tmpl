@@ -1,0 +1,76 @@
+{{ define "header.tmpl" }}
+<nav class="uk-navbar-container main-navbar" uk-navbar>
+            <div class="uk-navbar-left main-menu-left">
+
+                    <a href="../" class="uk-navbar-item uk-logo">
+                        <img uk-svg="" src="#" class="uk-margin-small-right" hidden="true">
+                        <svg width="28" height="34" viewBox="0 0 28 34" xmlns="http://www.w3.org/2000/svg" class="uk-margin-small-right uk-svg" data-svg="../images/uikit-logo.svg">
+                            <polygon fill="#fff" points="19.1,4.1 13.75,1 8.17,4.45 13.6,7.44 "></polygon>
+                            <path fill="#fff" d="M21.67,5.43l-5.53,3.34l6.26,3.63v9.52l-8.44,4.76L5.6,21.93v-7.38L0,11.7v13.51l13.75,8.08L28,25.21V9.07 L21.67,5.43z"></path>
+                        </svg> 数据管理平台
+                    </a>
+
+                    <ul class="uk-navbar-nav uk-visible@m uk-margin-large-left">
+                        <li><a href="#">订单数据</a></li>
+                        <li class="uk-active">
+                            <a href="#">玩家管理</a>
+                            <div class="uk-navbar-dropdown">
+                                <ul class="uk-nav uk-navbar-dropdown-nav">
+                                    <li class="uk-active"><a href="#">玩家增加</a></li>
+                                    <li><a href="#">查询</a></li>
+                                    <li><a href="#">下载</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li><a href="#">充值数据</a></li>
+                    </ul>
+            </div>
+            <div class="uk-navbar-right main-menu-right">
+                <a class="uk-navbar-toggle uk-visible@m nav-menu" href="#">
+                    <span uk-icon="icon: cog; ratio: 1.5"></span> <span class="uk-margin-small-left uk-visible@s">系统</span>
+                </a>
+                <div uk-dropdown="mode: click">
+                        <ul class="uk-nav uk-nav-parent-icon uk-dropdown-nav uk-nav-settings">
+                            <li class="uk-active"><a href="/admin/accounts">管理帐户</a></li>
+                            <li class="uk-active"><a href="/admin/accounts/role">权限角色</a></li>
+                            <li><a href="#">缓存清理</a></li>
+                            <li class="uk-nav-divider"></li>
+                           <li><a href="/admin/logout"><span class="uk-margin-small-right" uk-icon="icon: sign-out"></span>退出</a></li>
+                        </ul>
+                </div>
+
+                <a class="uk-navbar-toggle uk-hidden@m nav-menu" href="#"  uk-toggle="target: #menu-off-canvas" >
+                    <span uk-navbar-toggle-icon></span> <span class="uk-margin-small-left uk-visible@s">菜单</span>
+                </a>
+            </div>
+    </nav>
+
+    <div id="menu-off-canvas" uk-offcanvas="mode: reveal;overlay: true">
+            <div class="uk-offcanvas-bar">
+                <button class="uk-offcanvas-close" type="button" uk-close></button>
+                <ul class="uk-nav-default uk-nav-menu uk-nav-parent-icon" uk-nav>
+                    <li class="uk-nav-header">Menu</li>
+                    <li><a href="#">数据管理</a></li>
+                    <li class="uk-parent uk-active">
+                        <a href="#">订单</a>
+                        <ul class="uk-nav-sub">
+                            <li><a href="#">Sub item</a></li>
+                            <li><a href="#">Sub item</a></li>
+                        </ul>
+                    </li>
+                    <li class="uk-parent">
+                        <a href="#">Parent</a>
+                        <ul class="uk-nav-sub">
+                            <li><a href="#">Sub item</a></li>
+                            <li><a href="#">Sub item</a></li>
+                        </ul>
+                    </li>
+                    <li class="uk-nav-header">System</li>
+                    <li><a href="#"><span class="uk-margin-small-right" uk-icon="icon: table"></span> Item</a></li>
+                    <li><a href="#"><span class="uk-margin-small-right" uk-icon="icon: settings"></span> 设置</a></li>
+                    <li class="uk-nav-divider"></li>
+                    <li><a href="/admin/logout"><span class="uk-margin-small-right" uk-icon="icon: sign-out"></span> 退出</a></li>
+                </ul>
+            </div>
+    </div>
+{{ end }}

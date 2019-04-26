@@ -1,0 +1,56 @@
+{{ define "dashboard.tmpl" }}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{.title}}</title>
+    <link rel="stylesheet" href="/assets/uikit-3.0.3/css/uikit.min.css" />
+    <link rel="stylesheet" href="/assets/uikit-3.0.3/css/uikit-rtl.min.css" />
+    <link rel="stylesheet" href="/assets/admin.css" />
+    <script src="/assets/jquery/jquery-3.4.0.min.js"></script>
+    <script src="/assets/uikit-3.0.3/js/uikit.min.js"></script>
+    <script src="/assets/uikit-3.0.3/js/uikit-icons.min.js"></script>
+</head>
+<body>
+
+    {{template "header.tmpl" .}}
+    
+    <div class="panel-body">
+        <nav class="uk-navbar-container panel-menu" uk-navbar>
+            <div class="uk-navbar-left">
+                    <ul class="uk-breadcrumb uk-margin-small-left">
+                            <li>
+                                <span uk-icon="icon: desktop; ratio: 1" class="uk-margin-small-left"></span> 
+                                <span class="uk-margin-small-left">仪表盘</span>
+                            </li>
+                    </ul>
+            </div>
+            <div class="uk-navbar-right">
+            </div>
+        </nav>
+        <div class="uk-child-width-1-2@s uk-child-width-1-3@m uk-grid-match uk-margin-small-top uk-margin-remove-right uk-padding-remove-right" uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 100" uk-grid>
+            <div>
+                <div class="uk-card uk-card-default uk-card-body" >
+                    <h3 class="uk-card-title">欢迎</h3>
+                    <p>亲爱的朋友，欢迎来到数据管理平台，在这里你可查到你想的东西。也能看到你不想要的东西。:)</p>
+                    <button class="uk-button uk-button-default">点击我现在开始</button>
+                </div>
+            </div>
+            <div>
+                <div class="uk-card uk-card-default uk-card-body">
+                    <h3 class="uk-card-title">计时器</h3>
+                    <p uk-countdown="date: 2020-04-26T08:53:40+00:00">
+                        <span class="uk-countdown-number uk-countdown-days"></span> 天
+                        <span class="uk-countdown-number uk-countdown-hours"></span> 小时
+                        <span class="uk-countdown-number uk-countdown-minutes"></span> 分钟
+                        <span class="uk-countdown-number uk-countdown-seconds"></span> 钞
+                    </p>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+{{ end }}
