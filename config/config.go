@@ -77,11 +77,23 @@ type Configuration struct {
 	//  ETCDDialKeepAlive If DialKeepAlive is 0, it defaults to 3s
 	ETCDDialKeepAlive time.Duration
 
-	// MongodbAddress mongodb连接信息
-	MongodbAddress string
+	//PostgresAddr postgresSQL连接信息
+	PostgresAddr string
 
-	// MongodbName 数据库名称
-	MongodbName string
+	// PostgresPort postgresSQL连接端口
+	PostgresPort int
+
+	// PostgresUser postgresSQL用户名称
+	PostgresUser string
+
+	// PostgresPassword postgresSQL用户密码
+	PostgresPassword string
+
+	// PostgresDB postgresSQL数据库名称
+	PostgresDB string
+
+	// PostgresSSL string
+	PostgresSSL string 
 
 	// ServiceSecurityKey JWT 服务之通信认证
 	ServiceSecurityKey []byte
@@ -91,24 +103,28 @@ type Configuration struct {
 // 默认填充相关数据,在不修改的情况将使用默认数据来运行网关
 func New() *Configuration {
 	return &Configuration{
-		ID:                 "micro-admin",
+		ID:                 "msadmin",
 		Runmode:            "debug",
 		LocalIP:            "127.0.0.1",
 		GRPCListen:         ":59000",
 		HTTPListen:         ":8088",
 		ETCDAddress:        []string{"127.0.0.1:2379"},
-		ETCDFrefix:         "/services/foxchat",
+		ETCDFrefix:         "/services/msadmin",
 		ETCDDialTimeout:    3 * time.Second,
 		ETCDDialKeepAlive:  3 * time.Second,
-		MongodbAddress:     "mongodb://192.168.2.19:27017",
-		MongodbName:        "foxchat",
-		ServiceSecurityKey: []byte("foxchat"),
+		ServiceSecurityKey: []byte("msadmin"),
 		HTTPReadTimeout:    10 * time.Second,
 		HTTPWriteTimeout:   10 * time.Second,
 		HTTPMaxHeaderBytes: 1 << 20,
 		HTTPMediaDir:       "media",
-		SessionSecret:      "micro-admin-session-secret",
-		SessionName:        "microadmin",
-		CSRFSecret:         "micro-admin-csrf-secret",
+		SessionSecret:      "msadmin-session-secret",
+		SessionName:        "msadmin",
+		CSRFSecret:         "msadmin-csrf-secret",
+		PostgresAddr: "127.0.0.1",
+		PostgresPort: 5432,
+		PostgresUser: "msadmin",
+		PostgresPassword: "msadminpassword",
+		PostgresDB: "msadmin",
+		PostgresSSL: "disable",
 	}
 }

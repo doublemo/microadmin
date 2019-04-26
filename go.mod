@@ -11,10 +11,11 @@ require (
 	github.com/go-kit/kit v0.8.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/snappy v0.0.1
+	github.com/jinzhu/gorm v1.9.4
 	github.com/urfave/cli v1.20.0
 	github.com/utrack/gin-csrf v0.0.0-20190424104817-40fb8d2c8fca
 	github.com/xtaci/kcp-go v5.2.7+incompatible
 	go.etcd.io/etcd v3.3.12+incompatible
-	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c
 	google.golang.org/grpc v1.20.1 // indirect
 )

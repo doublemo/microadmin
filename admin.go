@@ -6,13 +6,17 @@ import (
 	"time"
 	"net/http"
 	"context"
+	"fmt"
 
 	"github.com/doublemo/msadmin/config"
 	"github.com/doublemo/msadmin/service"
+	"github.com/doublemo/msadmin/dao"
 	"github.com/doublemo/msadmin/core/utils"
 	"github.com/go-kit/kit/log"
 	"github.com/gin-gonic/gin"
 	"github.com/go-kit/kit/sd/etcdv3"
+	"github.com/jinzhu/gorm"
+	 _ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // Admin 主入口
@@ -36,6 +40,9 @@ func (admin *Admin) Serve() error {
 	// init etcd
 	utils.Assert(admin.etcdv3Client())
 
+	// init db
+	utils.Assert(admin.db())
+
 	// 注册所有服务
 	registrar := etcdv3.NewRegistrar(r.Etcdv3Client, etcdv3.Service{
 		Key:   service.MakeKey(c.ETCDFrefix, c.LocalIP+c.GRPCListen),
@@ -43,7 +50,12 @@ func (admin *Admin) Serve() error {
 	}, logger)
 
 	registrar.Register()
-	defer registrar.Deregister()
+
+	// defer
+	defer func(){
+		admin.dbClose()
+		registrar.Deregister()
+	}()
 
 	// set mode
 	gin.SetMode(gin.ReleaseMode)
@@ -139,6 +151,28 @@ func (admin *Admin) etcdv3Client() error {
 
 	admin.r.Etcdv3Client, err = etcdv3.NewClient(context.Background(), c.ETCDAddress, ops)
 	return err
+}
+
+func (admin *Admin) db() (err error) {
+	var (
+		r = admin.r
+		c = r.Configuration
+	)
+
+
+	dialString := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s", c.PostgresAddr, c.PostgresPort, c.PostgresUser, c.PostgresPassword, c.PostgresDB, c.PostgresSSL)
+	admin.r.DB, err = gorm.Open("postgres", dialString)
+	if err == nil {
+		admin.r.DB.LogMode(true)
+		dao.AutoMigrate(admin.r.DB)
+	}
+	return
+}
+
+func (admin *Admin) dbClose() {
+	if admin.r.DB != nil {
+		admin.r.DB.Close()
+	}
 }
 
 func (admin *Admin) Shutdown() {

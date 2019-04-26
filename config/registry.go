@@ -4,6 +4,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 type Registry struct {
@@ -18,6 +19,9 @@ type Registry struct {
 
 	// Gin gin.Engine
 	Gin *gin.Engine
+
+	// DB 数据库连接
+	DB *gorm.DB
 }
 
 func NewRegistry(c *Configuration, logger log.Logger) *Registry {
