@@ -33,7 +33,7 @@
         <div class="uk-container uk-container-center login-from">
                 <div class="uk-grid no-marginleft">
                     <div class="uk-visible@s uk-width-1-1 uk-width-1-2@s uk-width-2-3@m uk-flex uk-flex-center login-ad">
-                        <img data-src="assets/images/login-n.png" uk-img />
+                        <img data-src="/assets/images/login-n.png" uk-img />
                     </div>
                     <div class="uk-width-1-1 uk-width-1-2@s uk-width-1-3@m uk-padding-remove-left">
                         <form role="form" method="post" id="loginform" action="/login" autocomplete="off" onsubmit="return login()" >
@@ -50,14 +50,28 @@
                                     <div class="uk-inline width-b100">
                                         <span class="uk-form-icon" uk-icon="icon: lock"></span>
                                         {{ if gt .paswordAttemptCounter 0}} 
-                                           <input class="uk-input" placeholder="您还可以尝试密码 {{.paswordAttemptCounter}} 次" type="password" name="password" required />
+                                           <input class="uk-input" placeholder="您还可以尝试密码 {{with $x := .paswordAttemptCounter}}{{sub 5 $x}}{{end}} 次" type="password" name="password" required />
                                         {{else}}
                                            <input class="uk-input" placeholder="密码" type="password" name="password" required />
                                         {{ end }}
-                                        
                                         <input type="hidden" name="_csrf" value="{{.csrf}}" />
                                     </div>
                             </div>
+
+                            {{ if ne .captchaID ""}}
+                            <div class="uk-margin">
+                                    <div class="uk-inline width-b100 uk-text-center">
+                                     <img src="/captcha/{{.captchaID}}.png" />
+                                    </div>
+                            </div>
+                            <div class="uk-margin">
+                                    <div class="uk-inline width-b100">
+                                        <span class="uk-form-icon" uk-icon="icon: question"></span>
+                                        <input class="uk-input" type="text" name="captcha" value="" placeholder="验证码" required />
+                                        <input type="hidden" name="captchaid" value="{{.captchaID}}" />
+                                    </div>
+                            </div>
+                            {{end}}
 
                             <div class="uk-margin">
                                     <div class="uk-inline width-b100">

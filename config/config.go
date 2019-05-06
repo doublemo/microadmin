@@ -93,10 +93,19 @@ type Configuration struct {
 	PostgresDB string
 
 	// PostgresSSL string
-	PostgresSSL string 
+	PostgresSSL string
+
+	// PostgresFrefix 数据库名称前缀
+	PostgresFrefix string
 
 	// ServiceSecurityKey JWT 服务之通信认证
 	ServiceSecurityKey []byte
+
+	// CaptchaImageWidth 图片验证码宽
+	CaptchaImageWidth int
+
+	// CaptchaImageHeight 图片验证码高
+	CaptchaImageHeight int
 }
 
 // NewConfig 创建配置文件
@@ -120,11 +129,12 @@ func New() *Configuration {
 		SessionSecret:      "msadmin-session-secret",
 		SessionName:        "msadmin",
 		CSRFSecret:         "msadmin-csrf-secret",
-		PostgresAddr: "127.0.0.1",
-		PostgresPort: 5432,
-		PostgresUser: "msadmin",
-		PostgresPassword: "msadminpassword",
-		PostgresDB: "msadmin",
-		PostgresSSL: "disable",
+		PostgresAddr:       "127.0.0.1",
+		PostgresPort:       5432,
+		PostgresUser:       "msadmin",
+		PostgresPassword:   "msadminpassword",
+		PostgresDB:         "msadmin",
+		PostgresSSL:        "disable",
+		PostgresFrefix:     "msadmin_",
 	}
 }

@@ -1,26 +1,26 @@
 package msadmin
 
 import (
-	"os"
-	"math/rand"
-	"time"
-	"net/http"
 	"context"
 	"fmt"
+	"math/rand"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/doublemo/msadmin/config"
-	"github.com/doublemo/msadmin/service"
-	"github.com/doublemo/msadmin/dao"
 	"github.com/doublemo/msadmin/core/utils"
-	"github.com/go-kit/kit/log"
+	"github.com/doublemo/msadmin/dao"
+	"github.com/doublemo/msadmin/service"
 	"github.com/gin-gonic/gin"
+	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/sd/etcdv3"
 	"github.com/jinzhu/gorm"
-	 _ "github.com/jinzhu/gorm/dialects/postgres"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 // Admin 主入口
-type Admin struct{
+type Admin struct {
 	// registry 全局数据
 	r *config.Registry
 
@@ -52,7 +52,7 @@ func (admin *Admin) Serve() error {
 	registrar.Register()
 
 	// defer
-	defer func(){
+	defer func() {
 		admin.dbClose()
 		registrar.Deregister()
 	}()
@@ -68,9 +68,12 @@ func (admin *Admin) Serve() error {
 
 func (admin *Admin) serveOfGin() (err error) {
 	var (
-		r      = admin.r
-		c      = r.Configuration
+		r = admin.r
+		c = r.Configuration
 	)
+
+	// FuncMap
+	utils.Assert(admin.funcMap())
 
 	// middleware
 	utils.Assert(admin.middlewares())
@@ -133,9 +136,14 @@ func (admin *Admin) routes() error {
 	return loadRoutes(r)
 }
 
+func (admin *Admin) funcMap() error {
+	admin.r.Gin.SetFuncMap(FuncMap(admin.r))
+	return nil
+}
+
 func (admin *Admin) etcdv3Client() error {
 	var (
-		c = admin.r.Configuration
+		c   = admin.r.Configuration
 		err error
 	)
 
@@ -159,8 +167,12 @@ func (admin *Admin) db() (err error) {
 		c = r.Configuration
 	)
 
+	//  您可以通过定义DefaultTableNameHandler对默认表名应用任何规则
+	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
+		return c.PostgresFrefix + defaultTableName
+	}
 
-	dialString := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s", c.PostgresAddr, c.PostgresPort, c.PostgresUser, c.PostgresPassword, c.PostgresDB, c.PostgresSSL)
+	dialString := fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=%s", c.PostgresAddr, c.PostgresPort, c.PostgresUser, c.PostgresDB, c.PostgresPassword, c.PostgresSSL)
 	admin.r.DB, err = gorm.Open("postgres", dialString)
 	if err == nil {
 		admin.r.DB.LogMode(true)
@@ -181,7 +193,7 @@ func (admin *Admin) Shutdown() {
 	if err := admin.srv.Shutdown(ctx); err != nil && err != http.ErrServerClosed {
 		utils.Assert(err)
 	}
-	
+
 	select {
 	case <-ctx.Done():
 		admin.r.Logger.Log("Admin shutdown", "[TIMEOUT]")
@@ -203,6 +215,6 @@ func New(c *config.Configuration, logger log.Logger) *Admin {
 	}
 
 	return &Admin{
-		r:        r,
+		r: r,
 	}
 }

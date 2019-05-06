@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Rotues(r *config.Registry) {
+func Routes(r *config.Registry) {
 	r.Gin.GET("/login", func(ctx *gin.Context) {
 		login(ctx, r)
 	})

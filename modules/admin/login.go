@@ -1,38 +1,20 @@
 package admin
 
 import (
-	"time"
 	"net/http"
+	"time"
 
 	"github.com/doublemo/msadmin/config"
 	"github.com/doublemo/msadmin/flash"
-	"github.com/gin-gonic/gin"
+	"github.com/doublemo/msadmin/modules/captcha"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	csrf "github.com/utrack/gin-csrf"
 )
 
 func login(ctx *gin.Context, r *config.Registry) {
-	flashes := flash.NewFast()
-	session := sessions.Default(ctx)
-
-	var paswordAttemptCounter int
-	counter, _ := session.Get("paswordAttemptCounter").(int)
-	if counter >= 5 || counter < 1 {
-		paswordAttemptCounter = 0
-	} else {
-		paswordAttemptCounter = 5 - counter
-	}
-
-	ctx.HTML(http.StatusOK, "login.tmpl", gin.H{
-		"title":                 "Login",
-		"csrf":                  csrf.GetToken(ctx),
-		"flashes":               flashes,
-		"username":              "",
-		"paswordAttemptCounter": paswordAttemptCounter,
-	})
+	ctx.HTML(http.StatusOK, "login.tmpl", makeLoginPageData(ctx))
 }
-
-
 
 func logout(ctx *gin.Context, r *config.Registry) {
 	session := sessions.Default(ctx)
@@ -42,52 +24,97 @@ func logout(ctx *gin.Context, r *config.Registry) {
 }
 
 func postLogin(ctx *gin.Context, r *config.Registry) {
+	session := sessions.Default(ctx)
 	username := ctx.PostForm("username")
 	password := ctx.PostForm("password")
-	flashes := flash.NewFast()
-	h := gin.H{
-		"title":                 "Login",
-		"csrf":                  csrf.GetToken(ctx),
-		"username":              username,
-		"flashes":               flashes,
-		"paswordAttemptCounter": 0,
-	}
+	h := makeLoginPageData(ctx)
 
-	session := sessions.Default(ctx)
 	incorrectTime, ok := session.Get("incorrecttime").(int64)
-	if ok && incorrectTime > 0 && time.Now().Before(time.Unix(incorrectTime, 0)) {
-		flashes.Error("too many incorrect password attempts, please wait 20 minutes and attempt to sign in again.")
+	if ok && chkIncorrectCounter(incorrectTime) {
+		h["flashes"].(flash.Fast).Error("too many incorrect password attempts, please wait 20 minutes and attempt to sign in again.")
 		ctx.HTML(http.StatusOK, "login.tmpl", h)
 		return
 	}
 
-	if username == "" || password == "" {
-		flashes.Error("username or password is incorrect. please try again")
+	captchaID, ok := session.Get("captchaID").(string)
+	if ok && chkCaptcha(h["paswordAttemptCounter"].(int), captchaID, ctx.PostForm("captcha")) {
+		h["flashes"].(flash.Fast).Error("Wrong captcha solution!")
+		ctx.HTML(http.StatusOK, "login.tmpl", h)
+		return
 	}
 
 	if username != "admin" && password != "123456" {
-		var paswordAttemptCounter int
-		paswordAttemptCounter, _ = session.Get("paswordAttemptCounter").(int)
-		if paswordAttemptCounter+1 >= 5 {
+		paswordAttemptCounter := h["paswordAttemptCounter"].(int)
+		paswordAttemptCounter++
+		if paswordAttemptCounter >= 5 {
 			session.Set("incorrecttime", time.Now().Add(20*time.Minute).Unix())
-			h["paswordAttemptCounter"] = 0
-		} else {
-			h["paswordAttemptCounter"] = 5 - (paswordAttemptCounter + 1)
 		}
 
-		session.Set("paswordAttemptCounter", paswordAttemptCounter+1)
+		if paswordAttemptCounter > 0 && paswordAttemptCounter%2 == 0 {
+			captchaID := captcha.New()
+			h["captchaID"] = captchaID
+			session.Set("captchaID", captchaID)
+		} else if paswordAttemptCounter > 2 {
+			h["captchaID"] = ""
+			session.Delete("captchaID")
+		}
+
+		h["paswordAttemptCounter"] = paswordAttemptCounter
+		session.Set("paswordAttemptCounter", paswordAttemptCounter)
 		session.Save()
-		flashes.Error("username or password is incorrect. please try again")
+		h["flashes"].(flash.Fast).Error("username or password is incorrect. please try again")
 	}
 
-	if flashes.IsError() {
+	if h["flashes"].(flash.Fast).IsError() {
 		ctx.HTML(http.StatusOK, "login.tmpl", h)
 		return
 	}
 
 	session.Set("UID", uint64(1))
-	session.Delete("incorrecttime")
+	session.Delete("captchaID")
 	session.Delete("paswordAttemptCounter")
+	session.Delete("incorrecttime")
 	session.Save()
 	ctx.Redirect(http.StatusMovedPermanently, "/admin")
+}
+
+func chkIncorrectCounter(incorrectTime int64) bool {
+	if incorrectTime > 0 && time.Now().Before(time.Unix(incorrectTime, 0)) {
+		return true
+	}
+	return false
+}
+
+func chkCaptcha(incorrectCounter int, captchaID, captchaVal string) bool {
+	if incorrectCounter > 1 && !captcha.VerifyString(captchaID, captchaVal) {
+		captcha.Reload(captchaID)
+		return true
+	}
+
+	return false
+}
+
+func makeLoginPageData(ctx *gin.Context) gin.H {
+	session := sessions.Default(ctx)
+	username := ctx.PostForm("username")
+	flashes := flash.NewFast()
+
+	var paswordAttemptCounter int
+	{
+		paswordAttemptCounter, _ = session.Get("paswordAttemptCounter").(int)
+	}
+
+	var captchaID string
+	{
+		captchaID, _ = session.Get("captchaID").(string)
+	}
+
+	return gin.H{
+		"title":                 "Login",
+		"csrf":                  csrf.GetToken(ctx),
+		"username":              username,
+		"flashes":               flashes,
+		"paswordAttemptCounter": paswordAttemptCounter,
+		"captchaID":             captchaID,
+	}
 }
