@@ -1,7 +1,6 @@
 package msadmin
 
 import (
-	"fmt"
 	"html/template"
 
 	"github.com/doublemo/msadmin/config"
@@ -44,8 +43,5 @@ func FuncMap(r *config.Registry) template.FuncMap {
 			return a
 		}
 	}
-
-	fmt.Println(funcmap)
-
 	return funcmap
 }
